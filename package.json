@@ -1,6 +1,6 @@
 {
   "name": "react-native-input-component",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "",
   "main": "index.ts",
   "scripts": {
@@ -19,6 +19,8 @@
     "metro-react-native-babel-preset": "^0.56.0",
     "react": "^16.13.0",
     "react-native": "^0.61.5",
+    "react-native-paragraph-component": "^2.0.1",
+    "react-native-space-component": "^1.0.0",
     "react-native-vector-icons": "^8.1.0"
   }
 }

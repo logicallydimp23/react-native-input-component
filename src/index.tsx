@@ -1,239 +1,281 @@
-import React, { PureComponent } from 'react'
+import React, { Component, ReactNode } from "react"
 
 import {
   View,
+  StyleSheet,
   TextInput,
+  Platform,
   TouchableOpacity,
   TextInputProps,
-  TextInputIOSProps,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
-} from 'react-native'
+} from "react-native"
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
+
+import Space from "react-native-space-component";
+import Paragraph from "react-native-paragraph-component";
+import { fontTypes } from "react-native-paragraph-component/src";
 
 import {
-  baseConfig,
   COLOR,
-  GLOBAL,
   FONT,
 } from '../../../src/config/themes'
 
-type fontTypes = 'light' | 'bold' | 'regular' | 'lightItalic' | 'italic' | 'boldItalic'
 
-interface InputProps extends TextInputProps, TextInputIOSProps {
-  backdropColor?: string;
-  /**
-   * if `true` `elevation` prop will be required for the `shadow` to work.
-   */
-  shadow?: boolean;
-  /**
-   * `nullified` if `shadow` is `false`. (so it is dependent on the `shadow` prop).
-   *
-   * `value` must be 1 or greater for `shadow` to work.
-   */
-  elevation?: number;
-  spacing?: number;
-  verticalSpacing?: number;
-  borderRadius?: number;
-  /**
-   * if it has a `value` you need to pass `borderColor` prop otherwise it will return a `transparent` color.
-   */
-  borderWidth?: number;
-  borderColor?: string;
-  /**
-   * if `true` `leftIcon` can be tapped.
-   */
-  leftButton?: boolean;
-  /**
-   * callback if `leftButton` is true nad tapped.
-   */
-  leftButtonPress?: () => void;
-  leftIcon?: string;
-  leftIconSize?: number;
-  leftIconColor?: string;
-  leftBorderColor?: string;
-  leftBorderThickness?: number;
-  rightButton?: boolean;
-  rightButtonPress?: () => void;
-  rightIcon?: string;
-  rightIconSize?: number;
-  rightIconColor?: string;
-  rightBorderColor?: string;
-  rightBorderThickness?: number;
-  placeholderColor?: string;
-  secureText?: boolean;
-  /**
-   * if `true` the `placeholder` and `value` text will be on the center.
-   */
-  center?: boolean;
-  /**
-   * size of the font for `placeholder` and `value`.
-   */
-  inputSize?: number;
-  /**
-   * This can be one of the following values:
-   *
-   * - `light` -  Thinner font
-   * - `bold` - Heavier font
-   * - `regular` - Common font
-   *
-   * > See `config/constants/themes/Fonts.js` for font values.
-   * > The default is `regular`.
-   */
-  fontType?: fontTypes;
-  fontColor?: string;
-  containerStyle?: StyleProp<ViewStyle>
-  inputStyle?: StyleProp<TextStyle>
-  leftTestId?: string
-  rightTestId?: string
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+  },
+  inputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  flex1: {
+    flex: 1,
+  },
+  flex0: {
+    flex: 0,
+  },
+  labelRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  labelRequired: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+})
+
+interface Props extends TextInputProps {
+  leftIcon?: string | ReactNode
+  leftIconCustom?: boolean
+  leftPress?: () => void
+  leftIconSize?: number
+  leftIconColor?: string
+  rightIcon?: string | ReactNode
+  rightIconCustom?: boolean
+  rightPress?: () => void
+  rightIconSize?: number
+  rightIconColor?: string
+  spacing?: number
+  verticalSpacing?: number
+  bordered?: boolean
+  borderColor?: string
+  borderFocusedColor?: string
+  borderHasInputColor?: string
+  borderedWidth?: number
+  label?: string
+  labelFontColor?: string
+  labelFontType?: fontTypes
+  labelFontSize?: number
+  labelRowed?: boolean
+  labelIcon?: string
+  labelIconSize?: number
+  labelIconColor?: string
+  labelPress?: () => void
+  labelRequired?: boolean
+  font?: fontTypes
+  fontSize?: number
+  fontColor?: string
+  value: any
+  pressable?: boolean
+  onPress?: () => void
+  hasError?: boolean
 }
 
-class Input extends PureComponent<InputProps> {
-  public static defaultProps = {
-    backdropColor: baseConfig.input.backdropColor,
-    shadow: baseConfig.input.shadow,
-    elevation: baseConfig.input.elevation,
-    spacing: baseConfig.input.spacing,
-    verticalSpacing: baseConfig.input.verticalSpacing,
-    borderRadius: baseConfig.input.borderRadius,
-    borderWidth: baseConfig.input.borderWidth,
-    borderColor: baseConfig.input.borderColor,
-    leftButton: baseConfig.input.leftButton,
-    leftButtonPress: baseConfig.input.leftButtonPress,
-    leftIcon: baseConfig.input.leftIcon,
-    leftIconSize: baseConfig.input.leftIconSize,
-    leftIconColor: baseConfig.input.leftIconColor,
-    leftBorderColor: baseConfig.input.leftBorderColor,
-    leftBorderThickness: baseConfig.input.leftBorderThickness,
-    rightButton: baseConfig.input.rightButton,
-    rightButtonPress: baseConfig.input.rightButtonPress,
-    rightIcon: baseConfig.input.rightIcon,
-    rightIconSize: baseConfig.input.rightIconSize,
-    rightIconColor: baseConfig.input.rightIconColor,
-    rightBorderColor: baseConfig.input.rightBorderColor,
-    rightBorderThickness: baseConfig.input.rightBorderThickness,
-    placeholder: baseConfig.input.placeholder,
-    placeholderColor: baseConfig.input.placeholderColor,
-    secureText: baseConfig.input.secureText,
-    center: baseConfig.input.center,
-    inputSize: baseConfig.input.inputSize,
-    fontType: baseConfig.input.fontType,
-    fontColor: baseConfig.input.fontColor,
-    containerStyle: baseConfig.input.containerStyle,
-    inputStyle: baseConfig.input.inputStyle,
-    leftTestId: baseConfig.input.leftTestId,
-    rightTestId: baseConfig.input.rightTestId,
+interface State {
+  focused: boolean
+}
+
+class Input extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      focused: false,
+    }
   }
-
-  renderLeftIcon = (button: boolean, onPress: () => null, name: string, size: number, color: string, spacing: number, borderColor: string, thickness: number, testID: string) => {
-    if (name !== "") {
-      if (button) {
+  
+  renderLeftIcon = (): ReactNode => {
+    const {
+      leftIcon,
+      leftIconCustom,
+      leftPress,
+      leftIconSize,
+      leftIconColor,
+      pressable,
+    } = this.props;
+    if (leftIcon) {
+      if (pressable) {
         return (
-          <TouchableOpacity
-            onPress={onPress}
-            style={[GLOBAL.row, GLOBAL.alignItemsCenter]}
-            testID={testID}
-          >
-            <Icon name={name} size={size} color={color} />
-
-            {borderColor !== "" && <View style={{ width: spacing }} />}
-
-            {borderColor !== "" && (
-              <View
-                style={{
-                  borderColor,
-                  borderRightWidth: thickness,
-                  height: size,
-                }}
-              />
+          <>
+            {leftIconCustom ? leftIcon : (
+              <Icon name={typeof leftIcon === "string" ? leftIcon : ""} size={leftIconSize} color={leftIconColor || COLOR.WHITE} />
             )}
-          </TouchableOpacity>
+          </>
         )
       }
       return (
-        <View
-          style={[GLOBAL.row, GLOBAL.alignItemsCenter]}
-          testID={testID}
+        <TouchableOpacity
+          onPress={leftPress}
         >
-          <Icon name={name} size={size} color={color} />
-
-          {borderColor !== "" && <View style={{ width: spacing }} />}
-
-          {borderColor !== "" && (
-            <View
-              style={{
-                borderColor,
-                borderRightWidth: thickness,
-                height: size,
-              }}
-            />
+          {leftIconCustom ? leftIcon : (
+            <Icon name={typeof leftIcon === "string" ? leftIcon : ""} size={leftIconSize} color={leftIconColor || COLOR.WHITE} />
           )}
-        </View>
+        </TouchableOpacity>
       )
     }
 
-    return (
-      <View />
-    )
+    return <View />
   }
 
-  renderRightIcon = (button: boolean, onPress: () => null, name: string, size: number, color: string, spacing: number, borderColor: string, thickness: number, testID: string) => {
-    if (name !== "") {
-      if (button) {
+  renderRightIcon = (): ReactNode => {
+    const {
+      rightIcon,
+      rightIconCustom,
+      rightPress,
+      rightIconSize,
+      rightIconColor,
+      pressable,
+    } = this.props;
+    if (rightIcon) {
+      if (pressable) {
         return (
-          <TouchableOpacity
-            onPress={onPress}
-            style={[GLOBAL.row, GLOBAL.alignItemsCenter]}
-            testID={testID}
-          >
-            {borderColor !== "" && (
-              <View
-                style={{
-                  borderColor,
-                  borderLeftWidth: thickness,
-                  height: size,
-                }}
-              />
+          <>
+            {rightIconCustom ? rightIcon : (
+              <Icon name={typeof rightIcon === "string" ? rightIcon : ""} size={rightIconSize} color={rightIconColor || COLOR.WHITE} />
             )}
-
-            {borderColor !== "" && <View style={{ width: spacing }} />}
-
-            <Icon name={name} size={size} color={color} />
-
-          </TouchableOpacity>
+          </>
         )
       }
       return (
-        <View
-          style={[GLOBAL.row, GLOBAL.alignItemsCenter]}
-          testID={testID}
+        <TouchableOpacity
+          onPress={rightPress}
         >
-          {borderColor !== "" && (
-            <View
-              style={{
-                borderColor,
-                borderRightWidth: thickness,
-                height: size,
-              }}
-            />
+          {rightIconCustom ? rightIcon : (
+            <Icon name={typeof rightIcon === "string" ? rightIcon : ""} size={rightIconSize} color={rightIconColor || COLOR.WHITE} />
           )}
-
-          {borderColor !== "" && <View style={{ width: spacing }} />}
-
-          <Icon name={name} size={size} color={color} />
-        </View>
+        </TouchableOpacity>
       )
     }
 
-    return (
-      <View />
-    )
+    return <View />
   }
 
-  identifyFontType = (fontType: string) => {
-    switch (fontType) {
+  renderLabel = (): ReactNode => {
+    const {
+      label,
+      labelFontColor,
+      labelFontType,
+      labelFontSize,
+      labelIcon,
+      labelIconSize,
+      labelRowed,
+      labelIconColor,
+      labelPress,
+      labelRequired,
+      bordered,
+      borderFocusedColor,
+    } = this.props;
+    const {
+      focused,
+    } = this.state;
+    if (labelRowed && !labelRequired) {
+      return (
+        <TouchableOpacity
+          style={styles.labelRow}
+          onPress={labelPress}
+        >
+          <Paragraph
+            text={label || ""}
+            fontType={labelFontType || "regular"}
+            size={labelFontSize || 14}
+            color={((focused && bordered) ? borderFocusedColor : labelFontColor) || COLOR.WHITE}
+          />
+          <Icon name={labelIcon || ""} size={labelIconSize} color={labelIconColor || COLOR.BACKDROP_GRAY} />
+        </TouchableOpacity>
+      )
+    }
+
+    if (labelRequired && !labelRowed) {
+      return (
+        <View style={styles.labelRequired}>
+          <Paragraph
+            text={label || ""}
+            fontType={labelFontType || "regular"}
+            size={labelFontSize || 14}
+            color={((focused && bordered) ? borderFocusedColor : labelFontColor) || COLOR.WHITE}
+          />
+          <Space horizontal size={5} />
+          <Paragraph
+            text="*"
+            fontType={labelFontType || "regular"}
+            size={labelFontSize || 14}
+            color={COLOR.RED}
+          />
+        </View>
+      )
+    }
+    if (labelRowed && labelRequired) {
+      return (
+        <TouchableOpacity
+          style={styles.labelRow}
+          onPress={labelPress}
+        >
+          <Paragraph
+            text={label || ""}
+            fontType={labelFontType || "regular"}
+            size={labelFontSize || 14}
+            color={((focused && bordered) ? borderFocusedColor : labelFontColor) || COLOR.WHITE}
+          />
+          <Paragraph
+            text="*"
+            fontType={labelFontType || "regular"}
+            size={labelFontSize || 14}
+            color={COLOR.RED}
+          />
+          <Icon name={labelIcon || ""} size={labelIconSize} color={labelIconColor || COLOR.BACKDROP_GRAY} />
+        </TouchableOpacity>
+      )
+    }
+    if (label) {
+      return (
+        <Paragraph
+          text={label || ""}
+          fontType={labelFontType || "regular"}
+          size={labelFontSize || 14}
+          color={((focused && bordered) ? borderFocusedColor : labelFontColor) || COLOR.WHITE}
+        />
+      )
+    }
+
+    return <View />
+  }
+
+  calculateBorderColor = (focused: boolean, focusColor?: string, hasInput?: boolean, hasInputColor?: string): string => {
+    const { borderColor, hasError } = this.props;
+    if (hasError) {
+      return COLOR.RED
+    }
+    if (focused) {
+      return focusColor || COLOR.WHITE
+    }
+    if (hasInput) {
+      return hasInputColor || COLOR.WHITE
+    }
+    return borderColor || COLOR.WHITE
+  }
+
+  identifyFontType = (): any => {
+    const {
+      font,
+    } = this.props;
+
+    switch (font) {
       case 'light':
         return FONT.light;
       case 'bold':
@@ -249,113 +291,106 @@ class Input extends PureComponent<InputProps> {
     }
   }
 
-  shadowPlacement = (shadow: boolean, elevation: number) => {
-    if (shadow) {
-      return {
-        shadowColor: COLOR.GRAY,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.8,
-        shadowRadius: 3,
-        elevation,
-      }
-    }
-    return {
-      shadowColor: COLOR.GRAY,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0,
-      shadowRadius: 0,
-      elevation: 0,
-    }
-  }
-
   render() {
     const {
-      backdropColor,
-      shadow,
-      elevation,
-      spacing,
-      borderRadius,
-      borderWidth,
-      borderColor,
-      leftButton,
-      leftButtonPress,
-      leftIcon,
-      leftIconSize,
-      leftIconColor,
-      leftBorderColor,
-      leftBorderThickness,
-      leftTestId,
-      rightButton,
-      rightButtonPress,
-      rightIcon,
-      rightIconSize,
-      rightIconColor,
-      rightBorderColor,
-      rightBorderThickness,
-      rightTestId,
-      value,
-      onChangeText,
-      placeholder,
-      placeholderColor,
-      secureText,
-      center,
-      inputSize,
-      fontType,
+      bordered,
+      borderFocusedColor,
+      borderHasInputColor,
+      borderedWidth,
+      fontSize,
       fontColor,
+      spacing,
       verticalSpacing,
-      containerStyle,
-      inputStyle,
-      ...props
+      value,
+      onFocus,
+      pressable,
+      onPress,
     } = this.props;
-
+    const { focused } = this.state;
+    if (pressable) {
+      return (
+        <TouchableOpacity
+          style={{
+            ...styles.container,
+            ...bordered && {
+              borderBottomWidth: borderedWidth || 1,
+              borderColor: this.calculateBorderColor(focused, borderFocusedColor, value && value.length > 0, borderHasInputColor),
+            },
+            paddingHorizontal: spacing || 0,
+            paddingVertical: verticalSpacing || 0,
+          }}
+          onPress={onPress}
+        >
+          <>
+            {this.renderLabel()}
+            <View style={styles.inputContainer}>
+              <View style={styles.flex0}>
+                {this.renderLeftIcon()}
+              </View>
+              <View style={styles.flex1}>
+                <Paragraph
+                  text={value}
+                  fontType={this.identifyFontType() || "regular"}
+                  size={fontSize || 14}
+                  color={fontColor || COLOR.WHITE}
+                />
+              </View>
+              <View style={styles.flex0}>
+                {this.renderRightIcon()}
+              </View>
+            </View>
+          </>
+        </TouchableOpacity>
+      )
+    }
     return (
       <View
         style={{
-          backgroundColor: backdropColor,
-          paddingLeft: spacing,
-          paddingRight: spacing,
-          ...GLOBAL.spaceBetween,
-          ...GLOBAL.row,
-          ...GLOBAL.alignItemsCenter,
-          borderRadius,
-          ...this.shadowPlacement(shadow as boolean, elevation as number),
-          borderWidth,
-          borderColor,
-          ...containerStyle as {},
+          ...styles.container,
+          ...bordered && {
+            borderBottomWidth: borderedWidth || 1,
+            borderColor: this.calculateBorderColor(focused, borderFocusedColor, value && value.length > 0, borderHasInputColor),
+          },
+          paddingHorizontal: spacing || 0,
         }}
       >
-        <View style={GLOBAL.flex0}>
-          {this.renderLeftIcon(leftButton as boolean, leftButtonPress as () => null, leftIcon as string, leftIconSize as number, leftIconColor as string, spacing as number, leftBorderColor as string, leftBorderThickness as number, leftTestId as string)}
-        </View>
-        <View style={GLOBAL.flex1}>
-          <TextInput
-            style={{
-              textAlign: center ? 'center' : 'left',
-              fontFamily: this.identifyFontType(fontType as string),
-              fontSize: inputSize,
-              color: fontColor,
-              paddingLeft: spacing,
-              paddingRight: spacing,
-              paddingTop: verticalSpacing,
-              paddingBottom: verticalSpacing,
-              margin: 0,
-              ...inputStyle as {},
-            }}
-            placeholderTextColor={placeholderColor}
-            value={value}
-            placeholder={placeholder}
-            secureTextEntry={secureText}
-            underlineColorAndroid="transparent"
-            onChangeText={onChangeText}
-            autoCapitalize="none"
-            {...props}
-          />
-        </View>
-        <View style={GLOBAL.flex0}>
-          {this.renderRightIcon(rightButton as boolean, rightButtonPress as () => null, rightIcon as string, rightIconSize as number, rightIconColor as string, spacing as number, rightBorderColor as string, rightBorderThickness as number, rightTestId as string)}
-        </View>
+        <>
+          {this.renderLabel()}
+          <View style={styles.inputContainer}>
+            <View style={styles.flex0}>
+              {this.renderLeftIcon()}
+            </View>
+            <View style={styles.flex1}>
+              <TextInput
+                style={{
+                  fontFamily: this.identifyFontType() || FONT.regular,
+                  fontSize: fontSize || 14,
+                  color: fontColor || COLOR.WHITE,
+                  paddingLeft: spacing || 0,
+                  paddingRight: spacing || 0,
+                  paddingTop: verticalSpacing || Platform.OS === "ios" ? 5 : 0,
+                  paddingBottom: verticalSpacing || Platform.OS === "ios" ? 5 : 0,
+                  margin: 0,
+                }}
+                autoCapitalize="none"
+                onFocus={() => {
+                  this.setState({
+                    focused: true,
+                  }, () => {
+                    return this.props.onFocus ? onFocus : null;
+                  })
+                }}
+                onEndEditing={() => this.setState({ focused: false })}
+                {...this.props}
+              />
+            </View>
+            <View style={styles.flex0}>
+              {this.renderRightIcon()}
+            </View>
+          </View>
+        </>
       </View>
-    );
+    )
   }
 }
 

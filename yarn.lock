@@ -3699,6 +3699,16 @@ react-is@^16.12.0, react-is@^16.8.1, react-is@^16.8.4:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-native-paragraph-component@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-paragraph-component/-/react-native-paragraph-component-2.0.1.tgz#97853a4d7d68580d6db769d30e1428e815f87884"
+  integrity sha512-NBEnXhkKaCxyR8JSnq1Y1hc3eH0kGmZU6H5bS1D6J9AGGUMJKJzmfFXjXUtnRWaI55GR0/jkQhhmtGGidVyhuw==
+
+react-native-space-component@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-space-component/-/react-native-space-component-1.0.0.tgz#efdbc2828bcf6f31d83b91eb745ec25e2832bd33"
+  integrity sha512-4iiobI3EmwjorQSj7kwjpmWYx17i6F2fZpFv0fDCq4mM23q/4WhxfF23JJV1QyJPlPs0eahud5pW38vKAJj0HA==
+
 react-native-vector-icons@^8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-8.1.0.tgz#e8ee2b17bc4d9f636da1c6f67feee8e2a850c3d8"
